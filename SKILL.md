@@ -99,7 +99,15 @@ Or use the helper script:
 
 Downloaded files go to `~/Downloads/` — look for the most recent `.png` file.
 
-### 5. Send to user
+### 5. Backup to Google Drive
+
+Upload original to Google Drive for archiving:
+```bash
+LATEST=$(ls -t ~/Downloads/Gemini_Generated_Image_*.png | head -1)
+rclone copy "$LATEST" shawn2025drive:"Gemini Images/"
+```
+
+### 6. Send to user
 
 Copy the downloaded image to the OpenClaw media directory and send via Telegram.
 
@@ -204,10 +212,22 @@ sleep 3  # Wait for download
 ls -lt ~/Downloads/*.png | head -1  # Find the downloaded file
 ```
 
-### Step 5: Send to user
+### Step 5: Backup to Google Drive
+```bash
+# Upload the original full-size image to Google Drive for archiving
+# Use the EXACT filename, not wildcard, to avoid re-uploading old files
+LATEST=$(ls -t ~/Downloads/Gemini_Generated_Image_*.png | head -1)
+rclone copy "$LATEST" shawn2025drive:"Gemini Images/"
+```
+- All originals are archived to `shawn2025drive:Gemini Images/`
+- rclone skips already-uploaded files (checksum match)
+- ~8-10MB per image, takes ~5s to upload
+
+### Step 6: Send to user
 ```bash
 # Copy to OpenClaw media directory (REQUIRED for Telegram)
-cp ~/Downloads/Gemini_Generated_Image_*.png /tmp/openclaw/result.png
+LATEST=$(ls -t ~/Downloads/Gemini_Generated_Image_*.png | head -1)
+cp "$LATEST" /tmp/openclaw/result.png
 # Send
 openclaw message send --media /tmp/openclaw/result.png --channel telegram --to "<chat_id>" "Your generated image!"
 ```
@@ -291,6 +311,10 @@ $SKILL/wait-for-image.sh
 # 4. Download the image
 $SKILL/download.sh
 
-# 5. Send to user
+# 5. Backup to Google Drive
+LATEST=$(ls -t ~/Downloads/Gemini_Generated_Image_*.png | head -1)
+rclone copy "$LATEST" shawn2025drive:"Gemini Images/"
+
+# 6. Send to user
 $SKILL/send.sh "-5239395083" "Here's your cat!"
 ```
